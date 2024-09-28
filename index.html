@@ -1,79 +1,93 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Mobiz-Advanced-Flight-Simulator</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        overflow: hidden;
-      }
 
-      #loader {
-        z-index: 1;
-        background: #00000060;
-        text-align: center;
-        width: 450px;
-        height: 150px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin: -100px 0 0 -250px;
-        font-family: comic sans ms;
-      }
+<head>
+  <title>Mobiz-Advanced-Flight-Simulator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
 
-      #loaderbg {
-        position: absolute;
-        height: 100vh;
-        width: 100vw;
-        background: #008080;
-      }
+    #loader {
+      z-index: 1;
+      background: #00000060;
+      text-align: center;
+      width: 450px;
+      height: 150px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: -100px 0 0 -250px;
+      font-family: comic sans ms;
+    }
 
-      #navbar {
-        position: absolute;
-        width: 100%;
-      }
-    </style>
-    <link rel="stylesheet" href="https://unpkg.com/98.css">
-  </head>
-  <body>
-    <div id="loaderbg"></div>
-    <div id="loader">
-      <div class="window" style="width: 100%; height: 100%;">
-        <div class="title-bar">
-          <div class="title-bar-text">Loading Map...</div>
-        </div>
-        <div class="window-body">
-          <br><br><br>
-          <h4>Loading Map...</h4>
-          <p>Tip: Move your camera around using the mouse to control the plane!</p>
-        </div>
-      </div>
-    </div>
-    <div id="navbar" class="window" style="display: none;">
+    #loaderbg {
+      position: absolute;
+      height: 100vh;
+      width: 100vw;
+      background: #008080;
+    }
+
+    #navbar {
+      position: absolute;
+      width: 100%;
+    }
+
+    video,
+    #videoContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw !important;
+      height: 100vh;
+      z-index: 99;
+      background: black;
+      object-fit: fill;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
+</head>
+
+<body>
+  <div id="loaderbg"></div>
+  <div id="loader">
+    <div class="window" style="width: 100%; height: 100%;">
       <div class="title-bar">
-        <div class="title-bar-text">
-          Throttle: <span id="speed"></span> | 
-          Altitude: <span id="altitude"></span> | 
-          Flight: Mobiz Air Flight 690 | 
-          Windspeed: 90kts |
-          Status: <span id="status">OK</span>
-        </div>
-        <div class="title-bar-controls">
-          <button aria-label="Help" onclick="helpandabout()"></button>
-          <button aria-label="Close" onclick="window.location.reload()"></button>
-        </div>
+        <div class="title-bar-text">Loading Map...</div>
+      </div>
+      <div class="window-body">
+        <br><br><br>
+        <h4>Loading Map...</h4>
+        <p>Tip: Move your camera around using the mouse to control the plane!</p>
       </div>
     </div>
-    
-    <script src="https://raw.githack.com/mrdoob/three.js/r119/build/three.min.js"></script>
-    <script src="FirstPersonControls.js"></script>
-    <script src="ImprovedNoise.js"></script>
+  </div>
+  <div id="navbar" class="window" style="display: none;">
+    <div class="title-bar">
+      <div class="title-bar-text">
+        Throttle: <span id="speed"></span> |
+        Altitude: <span id="altitude"></span> |
+        Flight: Mobiz Air Flight 690 |
+        Windspeed: 90kts |
+        Status: <span id="status">OK</span>
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Help" onclick="helpandabout()"></button>
+        <button aria-label="Close" onclick="window.location.reload()"></button>
+      </div>
+    </div>
+  </div>
 
-    <script defer>
-      function helpandabout() {
-        window.alert(`
+  <script src="https://raw.githack.com/mrdoob/three.js/r119/build/three.min.js"></script>
+  <script src="FirstPersonControls.js"></script>
+  <script src="ImprovedNoise.js"></script>
+
+  <script defer>
+    function helpandabout() {
+      window.alert(`
           Mobiz-Advanced-Flight-Simulator
           Version 1
 
@@ -82,177 +96,192 @@
 
           Crashing will restart the game, Be careful!
         `)
-      }
+    }
 
-      // Set up the scene
-      const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2( 0xcccccc, 0.02 );
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setClearColor(0x1e90ff)
-      renderer.shadowMap.enabled = true;
-      document.body.appendChild(renderer.domElement);
+    // Set up the scene
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0xcccccc, 0.02);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x1e90ff)
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement);
 
-      // Set up the clock
-      const clock = new THREE.Clock();
+    //preload crash scene
+    var videoElem = document.createElement('video')
+    videoElem.src = 'crash.mp4'
+    videoElem.preload = 'auto'
 
-      // Set up the first-person controls
-      const controls = new THREE.FirstPersonControls(camera, renderer.domElement, clock);
-      controls.movementSpeed = 0;
-      controls.lookSpeed = 0.1;
-      controls.lookVertical = true;
-      controls.constrainVertical = true;
-      controls.verticalMin = 1.1;
-      controls.verticalMax = 2.2;
-      controls.autoForward = true;
+    // Set up the clock
+    const clock = new THREE.Clock();
 
-      // Add a light
-      const ambientLight = new THREE.AmbientLight(0x404040);
-      scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-      directionalLight.position.set(1, 1, 1);
-      scene.add(directionalLight);
+    // Set up the first-person controls
+    const controls = new THREE.FirstPersonControls(camera, renderer.domElement, clock);
+    controls.movementSpeed = 0;
+    controls.lookSpeed = 0.1;
+    controls.lookVertical = true;
+    controls.constrainVertical = true;
+    controls.verticalMin = 1.1;
+    controls.verticalMax = 2.2;
+    controls.autoForward = true;
 
-      const treegroup = new THREE.Group();
-      scene.add(treegroup)
-      treegroup.rotateX( - Math.PI / 2);
+    // Add a light
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
 
-      const planeSize = 250;
-      const planeSubdivisions = 100;
-      const terrainGeometry = new THREE.PlaneGeometry(planeSize, planeSize, planeSubdivisions, planeSubdivisions);
-      const noise = new THREE.ImprovedNoise();
-      for (let i = 0; i < terrainGeometry.vertices.length; i++) {
-        const vertex = terrainGeometry.vertices[i];
-        const x = vertex.x;
-        const y = vertex.y;
-        const z = noise.noise(x / 5, y / 5, 0) * 2;
-        vertex.z = z;
+    const treegroup = new THREE.Group();
+    scene.add(treegroup)
+    treegroup.rotateX(- Math.PI / 2);
 
-        if (Math.random() > 0.95) {
-          if (Math.random() > 0.5) {
-            let map = new THREE.TextureLoader().load( 'resources/tree1.png' );
-            let sprmaterial = new THREE.SpriteMaterial( { map: map } );
-            let tree = new THREE.Sprite( sprmaterial );
-            tree.position.set(
-              x,
-              y,
-              z
-            )
-            treegroup.add( tree );
-          } else {
-            let map = new THREE.TextureLoader().load( 'resources/tree2.png' );
-            let sprmaterial = new THREE.SpriteMaterial( { map: map } );
-            let tree = new THREE.Sprite( sprmaterial );
-            tree.position.set(
-              x,
-              y,
-              z
-            )
-            treegroup.add( tree );
-          }
+    const planeSize = 250;
+    const planeSubdivisions = 100;
+    const terrainGeometry = new THREE.PlaneGeometry(planeSize, planeSize, planeSubdivisions, planeSubdivisions);
+    const noise = new THREE.ImprovedNoise();
+    for (let i = 0; i < terrainGeometry.vertices.length; i++) {
+      const vertex = terrainGeometry.vertices[i];
+      const x = vertex.x;
+      const y = vertex.y;
+      const z = noise.noise(x / 5, y / 5, 0) * 2;
+      vertex.z = z;
+
+      if (Math.random() > 0.95) {
+        if (Math.random() > 0.5) {
+          let map = new THREE.TextureLoader().load('resources/tree1.png');
+          let sprmaterial = new THREE.SpriteMaterial({ map: map });
+          let tree = new THREE.Sprite(sprmaterial);
+          tree.position.set(
+            x,
+            y,
+            z
+          )
+          treegroup.add(tree);
+        } else {
+          let map = new THREE.TextureLoader().load('resources/tree2.png');
+          let sprmaterial = new THREE.SpriteMaterial({ map: map });
+          let tree = new THREE.Sprite(sprmaterial);
+          tree.position.set(
+            x,
+            y,
+            z
+          )
+          treegroup.add(tree);
         }
       }
+    }
 
-      terrainGeometry.computeFaceNormals();
-      terrainGeometry.computeVertexNormals();
-      var groundTexture = new THREE.TextureLoader().load("resources/Grass.png");
-      groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-      groundTexture.repeat.set( 100, 100 );
-      const terrainMaterial = new THREE.MeshPhongMaterial( { map: groundTexture } );
-      const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-      terrain.rotateX( - Math.PI / 2);
-      terrain.position.y = -0.1
-      terrain.castShadow = true;
-      terrain.receiveShadow = true;
-      scene.add(terrain);
+    terrainGeometry.computeFaceNormals();
+    terrainGeometry.computeVertexNormals();
+    var groundTexture = new THREE.TextureLoader().load("resources/Grass.png");
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(100, 100);
+    const terrainMaterial = new THREE.MeshPhongMaterial({ map: groundTexture });
+    const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+    terrain.rotateX(- Math.PI / 2);
+    terrain.position.y = -0.1
+    terrain.castShadow = true;
+    terrain.receiveShadow = true;
+    scene.add(terrain);
 
-      //testing skybox
-      const loader = new THREE.CubeTextureLoader();
-      const texture = loader.load([
-          'resources/posx.jpg',
-          'resources/negx.jpg',
-          'resources/posy.jpg',
-          'resources/negy.jpg',
-          'resources/posz.jpg',
-          'resources/negz.jpg',
-      ]);
-      scene.background = texture;
+    //testing skybox
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      'resources/posx.jpg',
+      'resources/negx.jpg',
+      'resources/posy.jpg',
+      'resources/negy.jpg',
+      'resources/posz.jpg',
+      'resources/negz.jpg',
+    ]);
+    scene.background = texture;
 
-      const seaterrainGeometry = new THREE.PlaneGeometry(1000, 1000);
-      const seaterrainMaterial = new THREE.MeshLambertMaterial ({
-          map: texture,  
-          envMap: scene.background,      
-          combine: THREE.MixOperation,     
-          reflectivity: .25     
-      });
-      const sea = new THREE.Mesh(seaterrainGeometry, seaterrainMaterial);
-      sea.rotateX( - Math.PI / 2);
-      scene.add(sea);
+    const seaterrainGeometry = new THREE.PlaneGeometry(1000, 1000);
+    const seaterrainMaterial = new THREE.MeshLambertMaterial({
+      map: texture,
+      envMap: scene.background,
+      combine: THREE.MixOperation,
+      reflectivity: .25
+    });
+    const sea = new THREE.Mesh(seaterrainGeometry, seaterrainMaterial);
+    sea.rotateX(- Math.PI / 2);
+    scene.add(sea);
 
-      const raycaster = new THREE.Raycaster();
-      let hasCrashed = false
-      function checkCameraTerrainCollision() {
-        // Update the camera's world position
-        const cameraPosition = camera.position.clone();
+    const raycaster = new THREE.Raycaster();
+    let hasCrashed = false
+    function checkCameraTerrainCollision() {
+      // Update the camera's world position
+      const cameraPosition = camera.position.clone();
 
-        // Define the direction of the ray (typically, it's directed downward)
-        const rayDirection = new THREE.Vector3(0, -1, 0);
+      // Define the direction of the ray (typically, it's directed downward)
+      const rayDirection = new THREE.Vector3(0, -1, 0);
 
-        // Set the ray's origin at the camera's position
-        raycaster.set(cameraPosition, rayDirection);
+      // Set the ray's origin at the camera's position
+      raycaster.set(cameraPosition, rayDirection);
 
-        // Perform the raycasting to check for intersections
-        const intersections = raycaster.intersectObject(terrain);
+      // Perform the raycasting to check for intersections
+      const intersections = raycaster.intersectObject(terrain);
 
-        if (intersections.length > 0) {
+      if (intersections.length > 0) {
 
-        } else if (!hasCrashed) {
-          document.getElementById('status').innerText = 'CRASHED'
-          hasCrashed = true
+      } else if (!hasCrashed) {
+        document.getElementById('status').innerText = 'CRASHED'
+        hasCrashed = true
+
+        videoElem.play()
+        var videoContainer = document.createElement('div')
+        videoContainer.id = 'videoContainer'
+        videoContainer.appendChild(videoElem)
+        document.documentElement.prepend(videoContainer)
+
+        setTimeout(() => {
           window.location.reload()
-        }
+        }, 1000);
       }
+    }
 
-      // Animate the scene
-      function animate() {
-        requestAnimationFrame(animate);
+    // Animate the scene
+    function animate() {
+      requestAnimationFrame(animate);
 
-        // Update the first-person controls
-        controls.update(clock.getDelta());
-        checkCameraTerrainCollision()
+      // Update the first-person controls
+      controls.update(clock.getDelta());
+      checkCameraTerrainCollision()
 
-        // Render the scene
-        renderer.render(scene, camera);
-        document.getElementById('speed').innerText = controls.movementSpeed
-        document.getElementById('altitude').innerText = Math.floor(camera.position.y * 100)
+      // Render the scene
+      renderer.render(scene, camera);
+      document.getElementById('speed').innerText = controls.movementSpeed
+      document.getElementById('altitude').innerText = Math.floor(camera.position.y * 100)
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.code == 'KeyW') {
+        controls.movementSpeed += 1
+      } else if (e.code == 'KeyS' && controls.movementSpeed > 1) {
+        controls.movementSpeed -= 1
       }
+    })
 
-      document.addEventListener('keydown', function (e) {
-        if (e.code == 'KeyW') {
-          controls.movementSpeed += 1
-        } else if (e.code == 'KeyS' && controls.movementSpeed > 1) {
-          controls.movementSpeed -= 1
-        }
-      })
+    animate();
+  </script>
+  <script>
+    function delay(time) {
+      return new Promise(resolve => setTimeout(resolve, time));
+    }
 
-      animate();
-    </script>
-    <script>
-      function delay(time) {
-        return new Promise(resolve => setTimeout(resolve, time));
-      }
+    function doneloadingmap() {
+      document.getElementById("loader").style.display = "none"
+      document.getElementById("navbar").style.display = "block"
+      document.getElementById("loaderbg").style.display = "none"
+      setTimeout(function () {
+        controls.movementSpeed = 1;
+      }, 1500)
+    }
 
-      function doneloadingmap() {
-        document.getElementById("loader").style.display = "none"
-        document.getElementById("navbar").style.display = "block"
-        document.getElementById("loaderbg").style.display = "none"
-        setTimeout(function () {
-          controls.movementSpeed = 1;
-        }, 1500)
-      }
-
-      delay(2500).then(() => doneloadingmap());
-    </script>
+    delay(2500).then(() => doneloadingmap());
+  </script>
 </body>
+
 </html>
